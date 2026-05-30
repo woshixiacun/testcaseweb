@@ -1,0 +1,323 @@
+/* 测试设计模块样式。作用域前缀 td- / mm-，避免与主样式冲突。
+   复用主样式里的 --primary 等变量与 btn-* 类。 */
+
+.td-root {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  outline: none;
+  background: #fafaff;
+  position: relative;
+}
+.td-loading,
+.td-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  color: #8c86a8;
+  gap: 8px;
+}
+.td-empty-hint {
+  font-size: 13px;
+  line-height: 1.7;
+  text-align: center;
+}
+
+/* 工具栏 */
+.td-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  padding: 8px 12px;
+  background: #f0eefb;
+  border-bottom: 1px solid #ddd8ee;
+}
+.td-tool-group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.td-tool-sep {
+  width: 1px;
+  height: 22px;
+  background: #d4cdea;
+  margin: 0 2px;
+}
+.td-tool-spacer {
+  flex: 1;
+}
+.td-toolbar button {
+  padding: 5px 10px;
+  font-size: 13px;
+  border: 1px solid #d4cdea;
+  background: #fff;
+  color: #5a5475;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+.td-toolbar button:hover:not(:disabled) {
+  background: #efeafb;
+}
+.td-toolbar button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+.td-toolbar .td-danger {
+  color: #c0392b;
+  border-color: #e7b7b1;
+}
+.td-toolbar .td-danger:hover:not(:disabled) {
+  background: #fdecea;
+}
+.td-add-btn {
+  font-weight: 600;
+}
+.td-design-select {
+  padding: 5px 8px;
+  border: 1px solid #d4cdea;
+  border-radius: 6px;
+  background: #fff;
+  font-size: 13px;
+  max-width: 200px;
+}
+.td-current-map {
+  font-weight: 600;
+  color: #5a5475;
+  padding: 0 6px;
+  max-width: 240px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.td-archive-btn {
+  padding: 6px 16px !important;
+  border: none !important;
+  font-weight: 600;
+}
+
+/* 悬浮缩放控件：左下角竖排 放大/缩小/Fit */
+.td-zoom-float {
+  position: absolute;
+  left: 16px;
+  bottom: 16px;
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.td-zoom-float button {
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: 1px solid #d4cdea;
+  background: #fff;
+  color: #5a5475;
+  border-radius: 8px;
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(80, 70, 130, 0.18);
+  transition: background 0.15s, border-color 0.15s;
+}
+.td-zoom-float button:hover {
+  background: #efeafb;
+  border-color: var(--primary);
+}
+.td-zoom-float .td-zoom-fit {
+  font-size: 12px;
+  font-weight: 600;
+}
+
+/* 画布：无边画布，隐藏滚动条，拖动背景平移 */
+.td-canvas-wrap {
+  flex: 1;
+  overflow: hidden;
+  position: relative;
+  cursor: grab;
+  background:
+    radial-gradient(circle, #e3def5 1px, transparent 1px) 0 0 / 22px 22px;
+}
+.td-canvas-wrap.td-panning {
+  cursor: grabbing;
+}
+.td-canvas-pan {
+  will-change: transform;
+}
+.td-canvas-scale {
+  width: max-content;
+}
+.mm-canvas {
+  position: relative;
+}
+.mm-edges {
+  position: absolute;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+}
+.mm-edge {
+  fill: none;
+  stroke: #b7afd8;
+  stroke-width: 1.6;
+}
+
+/* 节点盒 */
+.mm-node {
+  position: absolute;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  background: #fff;
+  border: 1.5px solid #c9c2e6;
+  border-left-width: 4px;
+  border-radius: 8px;
+  font-size: 13px;
+  color: #3a3550;
+  cursor: pointer;
+  box-shadow: 0 1px 3px rgba(80, 70, 130, 0.08);
+  transition: box-shadow 0.15s, transform 0.05s;
+}
+.mm-node:hover {
+  box-shadow: 0 2px 8px rgba(80, 70, 130, 0.18);
+}
+.mm-node.selected {
+  box-shadow: 0 0 0 2px var(--primary), 0 2px 8px rgba(80, 70, 130, 0.2);
+}
+.mm-tag {
+  flex: 0 0 auto;
+  font-size: 10px;
+  font-weight: 700;
+  color: #fff;
+  padding: 1px 5px;
+  border-radius: 4px;
+  letter-spacing: 0.5px;
+}
+.mm-text {
+  flex: 1;
+  white-space: pre-wrap;
+  word-break: break-word;
+  line-height: 1.35;
+}
+.mm-text em {
+  color: #b3acc9;
+  font-style: normal;
+}
+.mm-edit {
+  flex: 1;
+  border: 1px solid var(--primary);
+  border-radius: 4px;
+  padding: 2px 4px;
+  font-family: inherit;
+  font-size: 13px;
+  resize: none;
+  outline: none;
+  line-height: 1.35;
+}
+.mm-toggle {
+  position: absolute;
+  right: -10px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 1px solid #c9c2e6;
+  background: #fff;
+  color: #6356c4;
+  font-size: 12px;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  z-index: 2;
+}
+.mm-toggle:hover {
+  background: #efeafb;
+}
+
+/* 归档弹窗 */
+.td-archive {
+  width: 560px;
+  max-width: 92vw;
+}
+.td-archive-empty {
+  color: #8c86a8;
+  padding: 16px 0;
+  line-height: 1.6;
+}
+.td-archive-hint {
+  font-size: 13px;
+  color: #8c86a8;
+  margin-bottom: 8px;
+}
+.td-archive-list {
+  max-height: 50vh;
+  overflow-y: auto;
+  border: 1px solid #e3def5;
+  border-radius: 8px;
+  padding: 6px;
+}
+.td-archive-group {
+  margin-bottom: 6px;
+}
+.td-archive-group-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  font-weight: 600;
+  background: #f4f3fb;
+  border-radius: 6px;
+  cursor: pointer;
+}
+.td-archive-count {
+  margin-left: auto;
+  font-size: 11px;
+  font-weight: 500;
+  background: #c9c2e6;
+  color: #fff;
+  border-radius: 9px;
+  padding: 1px 8px;
+}
+.td-archive-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 8px 5px 22px;
+  cursor: pointer;
+  border-radius: 6px;
+}
+.td-archive-item:hover {
+  background: #faf9ff;
+}
+.td-archive-item-name {
+  flex: 1;
+}
+.td-archive-meta {
+  font-size: 11px;
+  color: #9b95b5;
+}
+.td-tag-sc,
+.td-tag-tp {
+  flex: 0 0 auto;
+  font-size: 10px;
+  font-weight: 700;
+  color: #fff;
+  padding: 1px 6px;
+  border-radius: 4px;
+}
+.td-tag-sc {
+  background: #3a9d6f;
+}
+.td-tag-tp {
+  background: #3a7bd5;
+}
