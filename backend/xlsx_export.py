@@ -33,6 +33,16 @@ TYPE_LABEL = {
 
 NO_VERSION = "(No Version)"
 
+
+def _iterations_value(val: Any) -> Any:
+    """迭代次数：能转成整数就写数字，否则原样透传字符串（空值写空串）。"""
+    if val is None or val == "":
+        return ""
+    try:
+        return int(val)
+    except (TypeError, ValueError):
+        return str(val)
+
 COLUMNS = [
     ("Case Name", 36),
     ("Case ID", 16),
@@ -40,6 +50,7 @@ COLUMNS = [
     ("Requirement", 16),
     ("Case Status", 12),
     ("Case Type", 14),
+    ("Number of Iteration", 16),
     ("Preconditions & Test Steps", 60),
 ]
 
@@ -129,6 +140,7 @@ def build_export_xlsx(
                 c.get("requirementDir", "") or "",
                 STATUS_LABEL.get(c.get("caseStatus"), STATUS_LABEL[""]),
                 TYPE_LABEL.get(c.get("caseType"), TYPE_LABEL[""]),
+                _iterations_value(c.get("iterations")),
                 _merge_steps_cell(c),
             ]
             for ci, val in enumerate(row_values, start=1):

@@ -49,6 +49,7 @@ export const emptyCase = (parentPath = []) => ({
   requirementDir: '',
   caseType: 'uncategorized', // uncategorized | manual | auto
   caseStatus: 'pending', // pending | success | fail | blocked
+  iterations: '', // 迭代次数（可手输数字，也可从预设里选）
   precondition: '',
   steps: [
     { operation: '', expected: '', actualResult: 'pending', actualNote: '' },
@@ -160,12 +161,17 @@ export function collectCaseIds(node) {
 }
 
 // 递归按名称排序（同级文件夹与 case 混排，按 name 升序）；
-// archive 文件夹（脑图归档生成的）永远置顶，便于一眼分辨。
+// archive 文件夹（脑图归档生成的）与 recovered 文件夹（RecoveredCase）永远置顶，便于一眼分辨。
 export function sortTree(tree) {
+  const rank = (n) => {
+    if (n.type === 'folder' && n.archive) return 0;
+    if (n.type === 'folder' && n.recovered) return 1;
+    return 2;
+  };
   const sorted = [...tree].sort((a, b) => {
-    const aArc = a.type === 'folder' && a.archive ? 0 : 1;
-    const bArc = b.type === 'folder' && b.archive ? 0 : 1;
-    if (aArc !== bArc) return aArc - bArc;
+    const ra = rank(a);
+    const rb = rank(b);
+    if (ra !== rb) return ra - rb;
     return String(a.name).localeCompare(String(b.name), 'zh-Hans-CN', {
       numeric: true,
       sensitivity: 'base',

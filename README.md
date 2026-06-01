@@ -28,6 +28,23 @@ testcaseweb/
 
 ## 启动
 
+> 需要分别启动**后端**和**前端**两个服务，各开一个终端窗口。前端通过代理依赖后端，所以**先起后端**。
+
+### 快速启动（依赖已装好）
+
+```bash
+# 终端 1 — 后端（在 repo 根目录）
+./backend/.venv/bin/uvicorn backend.main:app --host 0.0.0.0 --port 8000
+
+# 终端 2 — 前端
+cd frontend && npm run dev
+```
+
+启动后浏览器打开 http://localhost:5173 即可使用。
+WSL / 远程访问时用前端启动日志里的 `Network` 地址（如 `http://192.168.x.x:5173`）。
+
+> 加 `--host 0.0.0.0` 是为了让 WSL / 局域网内其它机器也能访问后端；本机自用可省略。
+
 ### 后端
 
 ```bash

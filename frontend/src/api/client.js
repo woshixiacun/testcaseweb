@@ -24,6 +24,16 @@ export const api = {
       json
     ),
   getStats: () => fetch('/api/stats').then(json),
+  // 扫描 database/ 下不在树里的孤立 case，归一化后返回 {count, recovered:[...]}
+  recover: () =>
+    fetch('/api/recover', { method: 'POST' }).then(json),
+  // 上传 xlsx 原始字节导入用例，返回 {imported, skipped, errors, items}
+  importXlsx: (fileBytes) =>
+    fetch('/api/import-xlsx', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/octet-stream' },
+      body: fileBytes,
+    }).then(json),
   getVersions: () => fetch('/api/versions').then(json),
   saveVersions: (versions) =>
     fetch('/api/versions', {

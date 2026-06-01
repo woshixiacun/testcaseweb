@@ -40,6 +40,9 @@ input, select, textarea { font-family: inherit; font-size: 14px; }
   transition: background 0.2s;
 }
 .toolbar button:hover { background: rgba(255,255,255,0.32); }
+.toolbar button:disabled { opacity: 0.6; cursor: default; }
+/* 把右侧按钮推到工具栏最右边 */
+.toolbar-spacer { flex: 1; }
 
 /* 主区 */
 .main { display: flex; flex: 1; overflow: hidden; }
@@ -79,6 +82,9 @@ input, select, textarea { font-family: inherit; font-size: 14px; }
   border: none; background: transparent; cursor: pointer; color: var(--primary-dark);
   font-weight: 600;
 }
+.sidebar-header-actions { display: flex; align-items: center; gap: 6px; }
+.sidebar-header .icon-btn { font-weight: 600; color: var(--primary-dark); white-space: nowrap; }
+.sidebar-header .icon-btn:hover { color: var(--primary); }
 .tree { flex: 1; overflow-y: auto; padding: 8px; }
 .tree-blank { flex: 1; min-height: 100%; }
 .tree-node {
@@ -109,6 +115,18 @@ input, select, textarea { font-family: inherit; font-size: 14px; }
   box-shadow: inset 3px 0 0 #e91e63;
 }
 .tree-node.archive-folder.selected { background: #e91e63; color: #fff; }
+/* 恢复文件夹（RecoveredCase，扫描孤立用例生成）：浅绿底 + 绿色左色条，置顶便于分辨 */
+.tree-node.recovered-folder {
+  background: #dcefdd;
+  box-shadow: inset 3px 0 0 #2e9e4f;
+  color: #1f7a3d;
+}
+.tree-node.recovered-folder:hover { background: #cde9d0; }
+.tree-node.recovered-folder.folder-selected:not(.selected) {
+  background: #cde9d0;
+  box-shadow: inset 3px 0 0 #2e9e4f;
+}
+.tree-node.recovered-folder.selected { background: #2e9e4f; color: #fff; }
 .tree-blank.drop-root { background: var(--accent-soft); outline: 2px dashed var(--accent); outline-offset: -2px; }
 .tree-node .caret { width: 12px; display: inline-block; text-align: center; }
 .case-status-dot {
@@ -227,12 +245,43 @@ input, select, textarea { font-family: inherit; font-size: 14px; }
 .req-version option[value=""],
 .req-select option[value=""] { color: #9b95b5; }
 
+/* Requirement 多选下拉：触发器里以 chip 形式展示已选；点菜单项加 chip，chip 的 × 可删 */
+.req-multiselect { flex: 1; min-width: 0; }
+.req-multi-trigger {
+  width: 100%; padding: 4px 8px; min-height: 32px;
+  flex-wrap: wrap; align-items: center; gap: 6px;
+}
+.req-chips {
+  flex: 1; display: flex; flex-wrap: wrap; gap: 4px; align-items: center;
+  min-width: 0;
+}
+.req-chip {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 2px 4px 2px 8px; border-radius: 10px;
+  background: var(--accent-soft); color: var(--primary-dark);
+  font-size: 12px; line-height: 1.4; max-width: 100%;
+}
+.req-chip-text { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.req-chip-x {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 16px; height: 16px; border-radius: 50%;
+  cursor: pointer; color: var(--primary-dark); font-size: 13px; line-height: 1;
+}
+.req-chip-x:hover { background: rgba(124,111,214,0.25); color: var(--primary); }
+.req-multi-menu { max-height: 240px; overflow-y: auto; }
+.req-multi-empty { padding: 8px 12px; color: #9b95b5; font-size: 12px; }
+
 /* Status & Type on one row */
 .status-type-row { display: flex; align-items: center; gap: 56px; }
 .st-group { display: flex; align-items: center; gap: 12px; }
 .st-group .status-select { min-width: 150px; width: 200px; }
 .st-label { color: var(--text); font-weight: 500; white-space: nowrap; }
 .status-type-row .radio-group { padding-top: 0; }
+.st-iter .iter-input {
+  width: 110px; padding: 6px 10px; border: 1px solid var(--border);
+  border-radius: 5px; font: inherit;
+}
+.st-iter .iter-input:disabled { background: var(--primary-soft); color: var(--text); }
 
 /* Version manager */
 .version-manager { display: flex; flex-direction: column; height: 100%; overflow: hidden; }
@@ -367,7 +416,10 @@ input, select, textarea { font-family: inherit; font-size: 14px; }
   min-width: 380px; max-width: 90vw; box-shadow: 0 8px 30px rgba(124,111,214,0.3);
 }
 .modal h3 { margin-bottom: 14px; font-size: 16px; color: var(--text); }
-.modal p { margin-bottom: 16px; color: #66617d; }
+.modal p {
+  margin-bottom: 16px; color: #66617d;
+  white-space: pre-wrap; max-height: 50vh; overflow-y: auto;
+}
 .modal input {
   width: 100%; padding: 7px 10px; border: 1px solid var(--border);
   border-radius: 5px; margin-bottom: 14px;

@@ -103,12 +103,27 @@ function VersionCard({ value, color, isNewlyAdded, onSave, onDelete, onDiscardNe
 
   const setDraftField = (patch) => setDraft((d) => ({ ...d, ...patch }));
 
+  // 需求按编号自然排序（"3.1.2" < "3.2.2" < "4.2.1"），与目录树排序口径一致；
+  // 空行排到末尾，避免打乱正在编辑的输入。
+  const sortReqs = (arr) =>
+    [...(arr || [])].sort((a, b) => {
+      const sa = String(a).trim();
+      const sb = String(b).trim();
+      if (!sa && !sb) return 0;
+      if (!sa) return 1;
+      if (!sb) return -1;
+      return sa.localeCompare(sb, 'zh-Hans-CN', { numeric: true, sensitivity: 'base' });
+    });
+
   const handleSave = () => {
     if (!draft.edition.trim()) {
       alert('Edition is required');
       return;
     }
-    onSave(draft);
+    // 保存时自动排序需求
+    const sorted = { ...draft, requirements: sortReqs(draft.requirements) };
+    setDraft(sorted);
+    onSave(sorted);
     setEditing(false);
   };
 

@@ -1,6 +1,7 @@
 import React from 'react';
 import StatusSelect, { TYPE_META } from './StatusSelect';
 import VersionSelect from './VersionSelect';
+import RequirementMultiSelect from './RequirementMultiSelect';
 
 export default function CaseEditor({
   data,
@@ -103,21 +104,12 @@ export default function CaseEditor({
               set({ version: v, requirementDir: '' })
             }
           />
-          <select
-            className={`req-select${data.requirementDir ? '' : ' select-placeholder'}`}
+          <RequirementMultiSelect
             value={data.requirementDir || ''}
+            options={reqOptions}
             disabled={!isEditing || !selectedVersion}
-            onChange={(e) => set({ requirementDir: e.target.value })}
-          >
-            <option value="">
-              {selectedVersion ? '— Requirement —' : 'Select a version first'}
-            </option>
-            {reqOptions.map((r, i) => (
-              <option key={i} value={r}>
-                {r}
-              </option>
-            ))}
-          </select>
+            onChange={(v) => set({ requirementDir: v })}
+          />
         </div>
       </div>
 
@@ -142,6 +134,27 @@ export default function CaseEditor({
               disabled={!isEditing}
               onChange={(v) => set({ caseType: v })}
             />
+          </div>
+          <div className="st-group st-iter">
+            <span className="st-label">Number of Iteration</span>
+            <input
+              type="number"
+              min="0"
+              step="1"
+              list="iteration-presets"
+              className="iter-input"
+              value={data.iterations ?? ''}
+              placeholder="e.g. 1"
+              disabled={!isEditing}
+              onChange={(e) => set({ iterations: e.target.value })}
+            />
+            <datalist id="iteration-presets">
+              <option value="1" />
+              <option value="5" />
+              <option value="10" />
+              <option value="50" />
+              <option value="100" />
+            </datalist>
           </div>
         </div>
       </div>

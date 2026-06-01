@@ -60,6 +60,9 @@ export default function App() {
   const [activeDesignId, setActiveDesignId] = useState(null);
   // Designs 树里高亮的文件夹（决定「新建脑图」落点）
   const [selectedDesignFolderId, setSelectedDesignFolderId] = useState(null);
+  // 上传 Excel 的隐藏 file input + 导入中状态
+  const fileInputRef = React.useRef(null);
+  const [importing, setImporting] = useState(false);
 
   // 拖拽侧栏右边缘改变宽度
   const startResizeSidebar = (e) => {
@@ -144,6 +147,104 @@ export default function App() {
       return;
     }
     persistTree(moved);
+  };
+
+  // ---------- 恢复孤立用例 ----------
+  // 扫描整个 database/，把不在 _tree.json 里的 case 文件归一化后，
+  // 挂到根级的浅绿色 RecoveredCase 文件夹下（已存在则复用并追加）。
+  const handleRecover = async () => {
+    try {
+      const { count, recovered } = await api.recover();
+      if (!count) {
+        showToast('No orphan cases found', 'success');
+        return;
+      }
+      // 找到已有的 RecoveredCase 文件夹，没有就新建一个（带 recovered 标记 → 浅绿）
+      let next = tree;
+      let folder = next.find(
+        (n) => n.type === 'folder' && n.recovered === true
+      );
+      let folderId;
+      if (folder) {
+        folderId = folder.id;
+      } else {
+        folderId = `dir_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
+        next = addChild(next, null, {
+          id: folderId,
+          name: 'RecoveredCase',
+          type: 'folder',
+          recovered: true,
+          children: [],
+        });
+      }
+      // 只追加树里还没有的节点（后端已保证 recovered 都是孤立 id，这里再防一层重复）
+      for (const c of recovered) {
+        if (findNode(next, c.id)) continue;
+        next = addChild(next, folderId, {
+          id: c.id,
+          name: c.name,
+          type: 'case',
+          status: c.status,
+        });
+      }
+      persistTree(next);
+      showToast(`Recovered ${count} case(s)`, 'success');
+    } catch (e) {
+      showToast('Recover failed: ' + (e.error || e.message || ''), 'error');
+    }
+  };
+
+  // ---------- 从 Excel 导入用例 ----------
+  const onClickUpload = () => {
+    if (importing) return;
+    fileInputRef.current && fileInputRef.current.click();
+  };
+
+  const onFilePicked = async (e) => {
+    const file = e.target.files && e.target.files[0];
+    // 清空 input，保证选同一个文件也能再次触发 change
+    e.target.value = '';
+    if (!file) return;
+    setImporting(true);
+    try {
+      const buf = await file.arrayBuffer();
+      const res = await api.importXlsx(buf);
+      // 重新拉取后端树（后端已写入 case 文件 + 更新 _tree.json）
+      const t = await api.getTree();
+      setTree(sortTree(t));
+      setSidebarTab('cases');
+
+      const { imported = 0, skipped = [], errors = [] } = res;
+      // 用 Modal 汇报结果（导入数 / 跳过 / 错误）
+      const lines = [];
+      lines.push(`Imported: ${imported} case(s)`);
+      if (skipped.length) {
+        lines.push(`Skipped: ${skipped.length}`);
+        skipped.slice(0, 10).forEach((s) =>
+          lines.push(`  • ${s.caseId || '(no id)'} — ${s.reason}`)
+        );
+        if (skipped.length > 10) lines.push(`  …and ${skipped.length - 10} more`);
+      }
+      if (errors.length) {
+        lines.push(`Notes: ${errors.length}`);
+        errors.slice(0, 10).forEach((er) => lines.push(`  • ${er}`));
+        if (errors.length > 10) lines.push(`  …and ${errors.length - 10} more`);
+      }
+      setModal({
+        title: 'Import Result',
+        message: lines.join('\n'),
+        confirmText: 'OK',
+        onClose: () => setModal(null),
+        onConfirm: () => setModal(null),
+      });
+      if (imported > 0) {
+        showToast(`Imported ${imported} case(s)`, 'success');
+      }
+    } catch (err) {
+      showToast('Import failed: ' + (err.detail || err.error || err.message || ''), 'error');
+    } finally {
+      setImporting(false);
+    }
   };
 
   // ---------- tab 操作 ----------
@@ -809,6 +910,21 @@ export default function App() {
         >
           + New Case
         </button>
+        <div className="toolbar-spacer" />
+        <button
+          onClick={onClickUpload}
+          disabled={importing}
+          title="Import cases from an Excel file (.xlsx). Area matches a top-level folder; cases are added under it."
+        >
+          {importing ? 'Importing…' : '⬆ Upload Excel'}
+        </button>
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept=".xlsx"
+          style={{ display: 'none' }}
+          onChange={onFilePicked}
+        />
       </div>
 
       <div className="main">
@@ -832,9 +948,18 @@ export default function App() {
             <>
               <div className="sidebar-header">
                 <span>Function Tree</span>
-                <button title="New top-level folder" onClick={() => askCreateFolder(null)}>
-                  + Folder
-                </button>
+                <div className="sidebar-header-actions">
+                  <button
+                    className="icon-btn"
+                    title="Scan database for cases not in the tree and recover them into RecoveredCase"
+                    onClick={handleRecover}
+                  >
+                    ⟳ Refresh
+                  </button>
+                  <button title="New top-level folder" onClick={() => askCreateFolder(null)}>
+                    + Folder
+                  </button>
+                </div>
               </div>
               <div className="tree">
                 <TreeView

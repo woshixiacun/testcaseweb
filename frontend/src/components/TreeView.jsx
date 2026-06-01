@@ -111,6 +111,7 @@ function TreeNode({
 }) {
   const isFolder = node.type === 'folder';
   const isArchiveFolder = isFolder && node.archive === true;
+  const isRecoveredFolder = isFolder && node.recovered === true;
   const [expanded, setExpanded] = useState(true);
   const isSelected = selectedId === node.id;
   const isFolderSelected = isFolder && selectedFolderId === node.id;
@@ -124,7 +125,7 @@ function TreeNode({
           isFolderSelected ? ' folder-selected' : ''
         }${isDropHover ? ' drop-hover' : ''}${isDragging ? ' dragging' : ''}${
           isArchiveFolder ? ' archive-folder' : ''
-        }`}
+        }${isRecoveredFolder ? ' recovered-folder' : ''}`}
         style={{ paddingLeft: 6 + level * 14 }}
         draggable
         onDragStart={(e) => {
