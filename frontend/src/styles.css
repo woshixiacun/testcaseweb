@@ -85,12 +85,15 @@ input, select, textarea { font-family: inherit; font-size: 14px; }
 .sidebar-header-actions { display: flex; align-items: center; gap: 6px; }
 .sidebar-header .icon-btn { font-weight: 600; color: var(--primary-dark); white-space: nowrap; }
 .sidebar-header .icon-btn:hover { color: var(--primary); }
-.tree { flex: 1; overflow-y: auto; padding: 8px; }
+.tree { flex: 1; overflow-y: auto; overflow-x: hidden; padding: 8px; }
 .tree-blank { flex: 1; min-height: 100%; }
 .tree-node {
   padding: 4px 8px; cursor: pointer; user-select: none;
   border-radius: 5px; display: flex; align-items: center; gap: 4px;
-  white-space: nowrap;
+  white-space: nowrap; overflow: hidden;
+}
+.tree-node > span:not(.caret):not(.case-status-dot):not(.folder-count):not(.tree-case-id) {
+  overflow: hidden; text-overflow: ellipsis; min-width: 0;
 }
 .tree-node:hover { background: var(--accent-soft); }
 .tree-node.selected { background: var(--primary); color: white; }
@@ -156,6 +159,15 @@ input, select, textarea { font-family: inherit; font-size: 14px; }
 .tree-node.selected .folder-count {
   background: #7dacee;
   color: #ffffff;
+}
+
+/* case 节点右侧显示 caseId */
+.tree-case-id {
+  margin-left: 6px; padding: 1px 6px; border-radius: 3px;
+  background: #f0edfa; color: #7c6fd6; font-size: 11px; font-weight: 500;
+}
+.tree-node.selected .tree-case-id {
+  background: #e8e3f7; color: #6b5ac3;
 }
 
 /* 右键菜单 */
@@ -544,3 +556,121 @@ input, select, textarea { font-family: inherit; font-size: 14px; }
 }
 .stats-embedded .stats-head { background: white; }
 .stats-embedded .stats-table-wrap { flex: 1; }
+
+/* Weekly Report 按钮：醒目的红色 */
+.btn-weekly-report {
+  background: #e74c3c !important;
+  color: white !important;
+  font-weight: 600;
+  border: none;
+  box-shadow: 0 2px 4px rgba(231, 76, 60, 0.3);
+}
+.btn-weekly-report:hover {
+  background: #c0392b !important;
+  box-shadow: 0 3px 6px rgba(231, 76, 60, 0.4);
+}
+
+/* Weekly Report 表格样式 */
+.weekly-report-head {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 16px 20px; border-bottom: 1px solid var(--border);
+}
+.weekly-report-head h3 { font-size: 16px; font-weight: 600; margin: 0; }
+.weekly-report-loading, .weekly-report-error {
+  padding: 40px 20px; text-align: center; color: #999;
+}
+.weekly-report-error { color: #e91e63; }
+
+/* PA1/PA2 饼图容器：两个饼图并排 */
+.pie-charts-row {
+  display: flex;
+  gap: 20px;
+  padding: 20px;
+  border-bottom: 1px solid var(--border);
+  background: #fafafa;
+}
+
+/* PA1/PA2 饼图样式 */
+.pie-chart-wrap {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background: white;
+  border-radius: 8px;
+  padding: 16px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+.pie-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--primary-dark);
+  margin: 0 0 12px 0;
+  text-align: center;
+}
+.pie-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+.pie-svg {
+  flex-shrink: 0;
+}
+.pie-legend {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-height: 200px;
+  overflow-y: auto;
+  padding-right: 8px;
+}
+.pie-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+}
+.pie-legend-color {
+  width: 16px;
+  height: 16px;
+  border-radius: 3px;
+  flex-shrink: 0;
+  box-shadow: 0 0 0 1px rgba(0,0,0,0.1);
+}
+.pie-legend-label {
+  color: var(--text);
+}
+.pie-empty {
+  padding: 40px 20px;
+  text-align: center;
+  color: #999;
+  font-size: 13px;
+}
+
+.weekly-report-table-wrap {
+  flex: 1; overflow: auto; padding: 16px 20px;
+}
+.weekly-report-table {
+  width: 100%; border-collapse: collapse; font-size: 13px;
+}
+.weekly-report-table th {
+  background: var(--accent-soft); color: var(--primary-dark);
+  padding: 8px 10px; text-align: left; font-weight: 600;
+  border: 1px solid var(--border); white-space: nowrap;
+}
+.weekly-report-table td {
+  padding: 6px 10px; border: 1px solid var(--border);
+}
+.weekly-report-table tbody tr:hover { background: #fafafa; }
+.weekly-report-table .subtotal-row {
+  background: #fff9e6; font-weight: 600;
+}
+.weekly-report-table .subtotal-row:hover { background: #fff5d6; }
+.weekly-report-empty {
+  padding: 40px 20px; text-align: center; color: #999;
+}
+/* embedded 模式：填满 tab 内容区 */
+.weekly-report-embedded {
+  display: flex; flex-direction: column; height: 100%; overflow: hidden;
+  background: white;
+}

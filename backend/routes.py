@@ -17,6 +17,7 @@ from . import storage
 from .models import CasePayload, ExportZipRequest, OkResponse
 from .xlsx_export import build_export_xlsx
 from .xlsx_import import parse_xlsx
+from .weekly_report import get_weekly_report_json
 
 router = APIRouter(prefix="/api")
 
@@ -24,7 +25,18 @@ router = APIRouter(prefix="/api")
 # ----- tree -----
 @router.get("/tree")
 def get_tree() -> Any:
-    return storage.read_tree()
+    tree = storage.read_tree()
+    # 给每个 case 节点附上 caseId(从 case 文件读取),方便前端在树上显示
+    def attach_case_id(nodes: list):
+        for n in nodes:
+            if n.get("type") == "case":
+                case_data = storage.read_case(n["id"])
+                if case_data and case_data.get("caseId"):
+                    n["caseId"] = case_data["caseId"]
+            if n.get("children"):
+                attach_case_id(n["children"])
+    attach_case_id(tree)
+    return tree
 
 
 @router.put("/tree", response_model=OkResponse)
@@ -369,3 +381,13 @@ def export_zip(req: ExportZipRequest) -> Response:
         ),
         headers={"Content-Disposition": f'attachment; filename="{filename}"'},
     )
+
+
+# ----- weekly report -----
+@router.get("/weeklyreport")
+def get_weeklyreport() -> Any:
+    """
+    返回 weekly report 表格数据(JSON)。
+    首次调用时解析 database/weeklyreport/forupload.xlsx 并缓存为 JSON。
+    """
+    return get_weekly_report_json()

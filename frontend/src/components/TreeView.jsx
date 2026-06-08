@@ -118,6 +118,9 @@ function TreeNode({
   const isDropHover = dropTarget === node.id;
   const isDragging = dragId === node.id;
 
+  // case 节点: caseId 由后端在树数据里附带
+  const caseId = !isFolder && node.type !== 'design' ? node.caseId : null;
+
   return (
     <div>
       <div
@@ -126,7 +129,7 @@ function TreeNode({
         }${isDropHover ? ' drop-hover' : ''}${isDragging ? ' dragging' : ''}${
           isArchiveFolder ? ' archive-folder' : ''
         }${isRecoveredFolder ? ' recovered-folder' : ''}`}
-        style={{ paddingLeft: 6 + level * 14 }}
+        style={{ paddingLeft: 8 + level * 14 }}
         draggable
         onDragStart={(e) => {
           e.stopPropagation();
@@ -193,6 +196,12 @@ function TreeNode({
           />
         )}
         <span>{node.name}</span>
+        {/* case 节点右侧显示 caseId */}
+        {caseId && (
+          <span className="tree-case-id" title={`Case ID: ${caseId}`}>
+            {caseId}
+          </span>
+        )}
         {/* 文件夹右侧用一个小徽标显示其下（含子孙）case 数量。0 时不显示，避免视觉噪音。 */}
         {isFolder && (() => {
           const n = countCases(node);

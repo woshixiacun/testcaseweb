@@ -66,4 +66,6 @@ export const api = {
     URL.revokeObjectURL(url);
   },
   exportUrl: () => '/api/export',
+  // 获取 weekly report 数据
+  getWeeklyReport: () => fetch('/api/weeklyreport').then(json),
 };

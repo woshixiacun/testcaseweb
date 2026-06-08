@@ -20,6 +20,7 @@ import Modal from './components/Modal';
 import Toast from './components/Toast';
 import StatsModal from './components/StatsModal';
 import VersionManager from './components/VersionManager';
+import WeeklyReport from './components/WeeklyReport';
 import TestDesignView from './testdesign/TestDesignView';
 import { designApi } from './testdesign/api';
 import { normalizeDesigns, makeDesign, makeFolder } from './testdesign/designstore';
@@ -28,6 +29,7 @@ const MAX_TABS = 20;
 const STATS_TAB_ID = '__stats__';
 const VERSION_TAB_ID = '__versions__';
 const TESTDESIGN_TAB_ID = '__testdesign__';
+const WEEKLYREPORT_TAB_ID = '__weeklyreport__';
 
 export default function App() {
   // 目录树（结构 + case 节点的元数据 name）
@@ -301,6 +303,7 @@ export default function App() {
   };
   const openStatsTab = () => openSpecialTab(STATS_TAB_ID, 'stats');
   const openVersionTab = () => openSpecialTab(VERSION_TAB_ID, 'versions');
+  const openWeeklyReportTab = () => openSpecialTab(WEEKLYREPORT_TAB_ID, 'weeklyreport');
   const openTestDesignTab = () => {
     setSidebarTab('designs');
     openSpecialTab(TESTDESIGN_TAB_ID, 'testdesign');
@@ -910,6 +913,9 @@ export default function App() {
         >
           + New Case
         </button>
+        <button onClick={openWeeklyReportTab} className="btn-weekly-report">
+          Weekly Report
+        </button>
         <div className="toolbar-spacer" />
         <button
           onClick={onClickUpload}
@@ -1016,13 +1022,16 @@ export default function App() {
                   const isStats = t.type === 'stats';
                   const isVersions = t.type === 'versions';
                   const isTestDesign = t.type === 'testdesign';
-                  const isSpecial = isStats || isVersions || isTestDesign;
+                  const isWeeklyReport = t.type === 'weeklyreport';
+                  const isSpecial = isStats || isVersions || isTestDesign || isWeeklyReport;
                   const title = isStats
                     ? 'Case Statistics'
                     : isVersions
                     ? 'Version Management'
                     : isTestDesign
                     ? 'Test Design'
+                    : isWeeklyReport
+                    ? 'Weekly Report'
                     : t.draft.caseName || 'New Case';
                   return (
                     <div
@@ -1037,6 +1046,7 @@ export default function App() {
                         {isStats && '📊 '}
                         {isVersions && '🏷 '}
                         {isTestDesign && '🧩 '}
+                        {isWeeklyReport && '📋 '}
                         {title}
                       </span>
                       {!isSpecial && t.dirty && <span className="dirty-dot">●</span>}
@@ -1070,6 +1080,10 @@ export default function App() {
                   onNewMap={() => createDesign(selectedDesignFolderId)}
                   showToast={showToast}
                 />
+              )}
+
+              {activeTab && activeTab.type === 'weeklyreport' && (
+                <WeeklyReport embedded />
               )}
 
               {activeTab && !activeTab.type && (
@@ -1151,7 +1165,7 @@ export default function App() {
               )}
             </>
           ) : (
-            <StatsModal embedded onOpenCase={openCaseById} onDeleteCases={handleDeleteCases} versions={versions} />
+            <WeeklyReport embedded />
           )}
         </div>
       </div>
